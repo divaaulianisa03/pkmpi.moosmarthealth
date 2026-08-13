@@ -10,7 +10,7 @@ use Illuminate\Database\Seeder;
 class SensorSeeder extends Seeder
 {
     /**
-     * Data contoh, setara dengan isi database.sql versi lama (5 ekor sapi).
+     * Data contoh, setara dengan isi database.sql versi lama (7 ekor sapi).
      */
     public function run(): void
     {
@@ -20,6 +20,8 @@ class SensorSeeder extends Seeder
             ['cow_id' => 'COW-003', 'nama' => 'Sapi 3', 'suhu' => 38.5, 'status_suhu' => 'normal', 'oksigen' => 97, 'status_oksigen' => 'normal', 'aktivitas' => 'tidak bergerak', 'intensitas' => 'rendah'],
             ['cow_id' => 'COW-004', 'nama' => 'Sapi 4', 'suhu' => 38.5, 'status_suhu' => 'normal', 'oksigen' => 97, 'status_oksigen' => 'normal', 'aktivitas' => 'gelisah', 'intensitas' => 'tinggi'],
             ['cow_id' => 'COW-005', 'nama' => 'Sapi 5', 'suhu' => 38.5, 'status_suhu' => 'normal', 'oksigen' => 97, 'status_oksigen' => 'normal', 'aktivitas' => 'istirahat', 'intensitas' => 'rendah'],
+            ['cow_id' => 'COW-006', 'nama' => 'Sapi 6', 'suhu' => 38.5, 'status_suhu' => 'normal', 'oksigen' => 97, 'status_oksigen' => 'normal', 'aktivitas' => 'makan', 'intensitas' => 'sedang'],
+            ['cow_id' => 'COW-007', 'nama' => 'Sapi 7', 'suhu' => 38.5, 'status_suhu' => 'normal', 'oksigen' => 97, 'status_oksigen' => 'normal', 'aktivitas' => 'istirahat', 'intensitas' => 'rendah'],
         ];
 
         foreach ($sapi as $s) {

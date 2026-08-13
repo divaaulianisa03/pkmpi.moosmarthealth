@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-function Riwayat() {
+function Riwayat({ listSapi = [] }) {
   const warna = { normal: "#4a7c2f", warning: "#d97706", danger: "#dc2626" };
   const label = { normal: "Normal", warning: "Waspada", danger: "Bahaya" };
 
@@ -24,13 +24,21 @@ function Riwayat() {
   const [riwayat, setRiwayat] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterSapi, setFilterSapi] = useState("");
+  const [filterBulan, setFilterBulan] = useState("");
   const [limit, setLimit] = useState(100);
+
+  const opsiBulan = [
+    { value: "", label: "Semua Bulan" },
+    { value: "2026-07", label: "Juli 2026" },
+    { value: "2026-08", label: "Agustus 2026" },
+  ];
 
   const fetchRiwayat = async () => {
     setLoading(true);
     try {
       const params = { limit };
       if (filterSapi) params.cow_id = filterSapi;
+      if (filterBulan) params.bulan = filterBulan;
 
       const res = await axios.get("/api/sensor/history", { params });
       setRiwayat(res.data.data || []);
@@ -45,18 +53,31 @@ function Riwayat() {
   useEffect(() => {
     fetchRiwayat();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterSapi, limit]);
+  }, [filterSapi, filterBulan, limit]);
 
   return (
     <div className="riwayat-wrap">
       <div className="riwayat-filter">
-        <input
-          type="text"
+        <label className="grafik-label">Filter:</label>
+        <select
           className="riwayat-input"
-          placeholder="Filter ID sapi, misal COW-001"
           value={filterSapi}
           onChange={e => setFilterSapi(e.target.value)}
-        />
+        >
+          <option value="">Semua Sapi</option>
+          {listSapi.map(d => (
+            <option key={d.cow_id} value={d.cow_id}>{d.cow_id} - {d.nama}</option>
+          ))}
+        </select>
+        <select
+          className="riwayat-input"
+          value={filterBulan}
+          onChange={e => setFilterBulan(e.target.value)}
+        >
+          {opsiBulan.map(b => (
+            <option key={b.value} value={b.value}>{b.label}</option>
+          ))}
+        </select>
         <select className="riwayat-select" value={limit} onChange={e => setLimit(Number(e.target.value))}>
           <option value={50}>50 data terakhir</option>
           <option value={100}>100 data terakhir</option>

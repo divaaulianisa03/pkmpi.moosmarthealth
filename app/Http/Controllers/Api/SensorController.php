@@ -50,6 +50,14 @@ class SensorController extends Controller
             $query->where('cow_id', $request->query('cow_id'));
         }
 
+        // Filter bulan, format: YYYY-MM (mis. 2026-07 untuk Juli 2026)
+        if ($request->filled('bulan')) {
+            $bulan = $request->query('bulan');
+            if (preg_match('/^\d{4}-\d{2}$/', $bulan)) {
+                $query->whereRaw("DATE_FORMAT(recorded_at, '%Y-%m') = ?", [$bulan]);
+            }
+        }
+
         $data = $query->limit($limit)->get();
 
         return response()->json([
@@ -133,10 +141,10 @@ class SensorController extends Controller
 
     private function statusSuhu(float $suhu): string
     {
-        if ($suhu > 40.5) {
+        if ($suhu >= 40.4) {
             return 'danger';
         }
-        if ($suhu > 39.5) {
+        if ($suhu >= 39.3) {
             return 'warning';
         }
 

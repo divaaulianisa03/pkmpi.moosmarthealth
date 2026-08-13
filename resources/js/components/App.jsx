@@ -60,26 +60,26 @@ function App() {
     if ("Notification" in window && Notification.permission === "granted" && data.length > 0) {
 
       const sapiBahaya = data.filter(
-        d => d.status_suhu === "danger" || d.status_jantung === "danger" || d.level_stress === "tinggi"
+        d => d.status_suhu === "danger" || d.status_oksigen === "danger" || d.level_stress === "tinggi"
       );
 
       const sapiWaspada = data.filter(
-        d => (d.status_suhu === "warning" || d.status_jantung === "warning" || d.level_stress === "sedang") &&
-             !(d.status_suhu === "danger" || d.status_jantung === "danger" || d.level_stress === "tinggi")
+        d => (d.status_suhu === "warning" || d.status_oksigen === "warning" || d.level_stress === "sedang") &&
+             !(d.status_suhu === "danger" || d.status_oksigen === "danger" || d.level_stress === "tinggi")
       );
 
       if (sapiBahaya.length > 0 || sapiWaspada.length > 0) {
         const teksBahaya = sapiBahaya.length > 0
-          ? `🔴 BAHAYA (${sapiBahaya.length}): ${sapiBahaya.map(s => s.nama).join(", ")}`
+          ? `BAHAYA (${sapiBahaya.length}): ${sapiBahaya.map(s => s.nama).join(", ")}`
           : "";
 
         const teksWaspada = sapiWaspada.length > 0
-          ? `🟡 WASPADA (${sapiWaspada.length}): ${sapiWaspada.map(s => s.nama).join(", ")}`
+          ? `WASPADA (${sapiWaspada.length}): ${sapiWaspada.map(s => s.nama).join(", ")}`
           : "";
 
         const pesanBody = [teksBahaya, teksWaspada].filter(Boolean).join("\n");
 
-        new Notification("⚠️ PEMBARUAN KESEHATAN KANDANG", {
+        new Notification("PEMBARUAN KESEHATAN KANDANG", {
           body: pesanBody,
           icon: "/logo.jpeg",
           tag: `alert-sapi-${sapiBahaya.length}-${sapiWaspada.length}`,
@@ -89,11 +89,11 @@ function App() {
   }, [data]);
 
   const normal = data ? data.filter(
-    d => d.status_suhu === "normal" && d.status_jantung === "normal" && d.level_stress === "rendah"
+    d => d.status_suhu === "normal" && d.status_oksigen === "normal" && d.level_stress === "rendah"
   ).length : 0;
 
   const danger = data ? data.filter(
-    d => d.status_suhu === "danger" || d.status_jantung === "danger" || d.level_stress === "tinggi"
+    d => d.status_suhu === "danger" || d.status_oksigen === "danger" || d.level_stress === "tinggi"
   ).length : 0;
 
   const warning = data.length - normal - danger;
@@ -208,7 +208,7 @@ function App() {
         {activeTab === "grafik" && (
           <Grafik data={data} selectedSapi={selectedSapi} setSelectedSapi={setSelectedSapi} />
         )}
-        {activeTab === "riwayat" && <Riwayat />}
+        {activeTab === "riwayat" && <Riwayat listSapi={data} />}
       </main>
     </div>
   );

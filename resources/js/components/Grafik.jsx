@@ -13,6 +13,68 @@ function Grafik({ data, selectedSapi, setSelectedSapi }) {
     ? data.find(d => d.cow_id === selectedSapi.cow_id) || data[0]
     : data[0];
 
+  // Plugin generik buat gambar zona warna (background) + garis putus-putus
+  // di ambang batas, SEBELUM bar-nya digambar (beforeDatasetsDraw).
+  // zones: [{ from, to, color }] dalam satuan nilai sumbu-Y (bukan pixel).
+  // lines: [{ value, color }] buat garis ambang batas.
+  const buatZonaPlugin = (id, zones, lines) => ({
+    id,
+    beforeDatasetsDraw(chart) {
+      const { ctx, chartArea, scales } = chart;
+      const y = scales.y;
+      ctx.save();
+
+      zones.forEach(z => {
+        const yTop = y.getPixelForValue(z.to);
+        const yBottom = y.getPixelForValue(z.from);
+        ctx.fillStyle = z.color;
+        ctx.fillRect(chartArea.left, yTop, chartArea.right - chartArea.left, yBottom - yTop);
+      });
+
+      ctx.setLineDash([4, 4]);
+      ctx.lineWidth = 1;
+      lines.forEach(l => {
+        const yPos = y.getPixelForValue(l.value);
+        ctx.strokeStyle = l.color;
+        ctx.beginPath();
+        ctx.moveTo(chartArea.left, yPos);
+        ctx.lineTo(chartArea.right, yPos);
+        ctx.stroke();
+      });
+
+      ctx.restore();
+    }
+  });
+
+  // Zona suhu: normal <39.3 (hijau) | waspada 39.3-40.3 (kuning) | bahaya >=40.4 (merah)
+  const zonaSuhuPlugin = buatZonaPlugin(
+    "zonaSuhu",
+    [
+      { from: 36, to: 39.3, color: "rgba(74,124,47,0.07)" },
+      { from: 39.3, to: 40.4, color: "rgba(217,119,6,0.10)" },
+      { from: 40.4, to: 43, color: "rgba(220,38,38,0.08)" },
+    ],
+    [
+      { value: 39.3, color: "#d97706" },
+      { value: 40.4, color: "#dc2626" },
+    ]
+  );
+
+  // Zona oksigen: kebalikan suhu - makin RENDAH makin parah.
+  // normal >=95 (hijau) | waspada 90-94 (kuning) | bahaya <90 (merah)
+  const zonaOksigenPlugin = buatZonaPlugin(
+    "zonaOksigen",
+    [
+      { from: 70, to: 90, color: "rgba(220,38,38,0.08)" },
+      { from: 90, to: 95, color: "rgba(217,119,6,0.10)" },
+      { from: 95, to: 100, color: "rgba(74,124,47,0.07)" },
+    ],
+    [
+      { value: 90, color: "#dc2626" },
+      { value: 95, color: "#d97706" },
+    ]
+  );
+
   useEffect(() => {
     if (!data || data.length === 0) return;
 
@@ -46,7 +108,8 @@ function Grafik({ data, selectedSapi, setSelectedSapi }) {
               },
               x: { grid: { display: false } }
             }
-          }
+          },
+          plugins: [zonaSuhuPlugin]
         });
       }
 
@@ -77,7 +140,8 @@ function Grafik({ data, selectedSapi, setSelectedSapi }) {
               },
               x: { grid: { display: false } }
             }
-          }
+          },
+          plugins: [zonaOksigenPlugin]
         });
       }
     };
@@ -141,13 +205,13 @@ function Grafik({ data, selectedSapi, setSelectedSapi }) {
         <div className="grafik-card">
           <h3 className="grafik-title">Suhu Tubuh Semua Sapi</h3>
           <div style={{ position: "relative", height: "260px" }}>
-            <canvas ref={suhuRef} role="img" aria-label="Grafik suhu tubuh sapi"></canvas>
+            <canvas ref={suhuRef} role="img" aria-label="Grafik suhu tubuh sapi dengan zona ambang batas normal, waspada, bahaya"></canvas>
           </div>
         </div>
         <div className="grafik-card">
           <h3 className="grafik-title">Kadar Oksigen Semua Sapi</h3>
           <div style={{ position: "relative", height: "260px" }}>
-            <canvas ref={oksigenRef} role="img" aria-label="Grafik kadar oksigen sapi"></canvas>
+            <canvas ref={oksigenRef} role="img" aria-label="Grafik kadar oksigen sapi dengan zona ambang batas normal, waspada, bahaya"></canvas>
           </div>
         </div>
       </div>
